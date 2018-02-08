@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var opts struct {
-		DB string `long:"db" value-name:"FILE" description:"database file to use"`
+		db string `long:"db" value-name:"FILE" description:"database file to use"`
 	}
 
 	args, err := flags.ParseArgs(&opts, os.Args[1:])
@@ -22,11 +22,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	avgdata, err := NewAvgData(opts.DB)
+	avgdata, err := NewAvgData(opts.db)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	fmt.Println(avgdata, args, opts.DB)
+	fmt.Println(avgdata, args, opts.db)
 }
