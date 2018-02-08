@@ -26,9 +26,10 @@ func NewAvgData(DB string) (*AvgData, error) {
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	for {
 		line, err := reader.Read()
-		if err == io.EOF {
-			break
-		} else if err != nil {
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
 			return nil, err
 		}
 		load, err := strconv.ParseFloat(line[0], 64)
