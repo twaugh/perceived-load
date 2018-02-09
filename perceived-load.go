@@ -22,11 +22,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	avgdata, err := NewAvgData(opts.db)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
+	avgdata := NewAvgData()
+	avgdata.Read(opts.db)
 	fmt.Println(avgdata, args, opts.db)
 }
