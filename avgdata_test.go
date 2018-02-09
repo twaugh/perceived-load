@@ -12,8 +12,8 @@ func TestNewAvgData(t *testing.T) {
 		t.Errorf("expected 1 record")
 		return
 	}
-	if avgdata.records[0].load != 1 {
+	record := &avgdata.records[0]
+	if record.load != 1 {
 		t.Errorf("unexpected record value")
-		return
 	}
 }

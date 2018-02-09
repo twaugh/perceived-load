@@ -6,9 +6,11 @@ import (
 	"io"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Record struct {
+	timestamp time.Time
 	load float64
 }
 
@@ -25,18 +27,25 @@ func NewAvgData(DB string) (*AvgData, error) {
 	var records []Record
 	reader := csv.NewReader(bufio.NewReader(csvFile))
 	for {
-		line, err := reader.Read()
+		values, err := reader.Read()
 		if err != nil {
 			if err == io.EOF {
 				break
 			}
 			return nil, err
 		}
-		load, err := strconv.ParseFloat(line[0], 64)
+
+		timestamp, err := time.Parse(time.RFC3339, values[0])
 		if err != nil {
 			return nil, err
 		}
+		load, err := strconv.ParseFloat(values[1], 64)
+		if err != nil {
+			return nil, err
+		}
+
 		records = append(records, Record{
+			timestamp: timestamp,
 			load: load,
 		})
 	}
