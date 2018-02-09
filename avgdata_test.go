@@ -7,10 +7,10 @@ func TestNewAvgData(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if len(avgdata.Records) != 1 {
+	if len(avgdata.records) != 1 {
 		t.Errorf("expected 1 record")
 	}
-	if avgdata.Records[0].Load != 1 {
+	if avgdata.records[0].load != 1 {
 		t.Errorf("unexpected record value")
 	}
 }

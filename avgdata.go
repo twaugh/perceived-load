@@ -9,11 +9,11 @@ import (
 )
 
 type Record struct {
-	Load float64
+	load float64
 }
 
 type AvgData struct {
-	Records []Record
+	records []Record
 }
 
 func NewAvgData(DB string) (*AvgData, error) {
@@ -37,11 +37,11 @@ func NewAvgData(DB string) (*AvgData, error) {
 			return nil, err
 		}
 		records = append(records, Record{
-			Load: load,
+			load: load,
 		})
 	}
 
 	return &AvgData{
-		Records: records,
+		records: records,
 	}, nil
 }
