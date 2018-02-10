@@ -22,7 +22,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	avgdata := NewAvgData()
-	avgdata.Read(opts.db)
-	fmt.Println(avgdata, args, opts.db)
+	ts := NewTimeSeries()
+	ts.Read(opts.db)
+	fmt.Println(ts, args, opts.db)
 }
