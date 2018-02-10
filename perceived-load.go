@@ -23,6 +23,10 @@ func main() {
 	}
 
 	ts := NewTimeSeries()
-	ts.Read(opts.DB)
+	if err := ts.Read(opts.DB); err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	fmt.Println(ts, args, opts.DB)
 }
