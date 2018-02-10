@@ -22,8 +22,8 @@ func NewTimeSeries() *TimeSeries {
 	}
 }
 
-func (t *TimeSeries) Read(DB string) error {
-	csvFile, err := os.Open(DB)
+func (t *TimeSeries) Read(db string) error {
+	csvFile, err := os.Open(db)
 	if err != nil {
 		return err
 	}
