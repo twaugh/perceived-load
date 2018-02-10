@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+const DateFormat = "2006-01-02"
+
 type TimeSeries struct {
 	granularity time.Duration
 	records map[time.Time]float64
@@ -41,7 +43,10 @@ func (t *TimeSeries) Read(db string) error {
 
 		timestamp, err := time.Parse(time.RFC3339, values[0])
 		if err != nil {
-			return err
+			timestamp, err = time.Parse(DateFormat, values[0])
+			if err != nil {
+				return err
+			}
 		}
 		datum, err := strconv.ParseFloat(values[1], 64)
 		if err != nil {
