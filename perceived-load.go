@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var opts struct {
-		db string `long:"db" value-name:"FILE" description:"database file to use"`
+		DB string `long:"db" value-name:"FILE" description:"database file to use"`
 	}
 
 	args, err := flags.ParseArgs(&opts, os.Args[1:])
@@ -23,6 +23,6 @@ func main() {
 	}
 
 	ts := NewTimeSeries()
-	ts.Read(opts.db)
-	fmt.Println(ts, args, opts.db)
+	ts.Read(opts.DB)
+	fmt.Println(ts, args, opts.DB)
 }
