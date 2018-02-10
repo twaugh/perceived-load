@@ -54,6 +54,21 @@ func (t *TimeSeries) Read(DB string) error {
 	return nil
 }
 
+// New TimeSeries with data since timestamp
+func (t *TimeSeries) Since(ts time.Time) *TimeSeries {
+	records := make(map[time.Time]float64)
+	for timestamp, datum := range t.records {
+		if !timestamp.Before(ts) {
+			records[timestamp] = datum
+		}
+	}
+
+	return &TimeSeries{
+		granularity: t.granularity,
+		records: records,
+	}
+}
+
 // Resample by date
 func (t *TimeSeries) Resample(d time.Duration) {
 

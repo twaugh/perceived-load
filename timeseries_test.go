@@ -28,6 +28,16 @@ func TestTimeSeriesRead(t *testing.T) {
 	}
 }
 
+func TestTimeSeriesSince(t *testing.T) {
+	ts := NewTimeSeries()
+	ts.Read("testdata/simple.csv")
+	ts = ts.Since(time.Date(2018, 2, 1, 0, 0, 0, 0, time.UTC))
+	length := len(ts.records)
+	if length != 2 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
 func TestTimeSeriesResample(t *testing.T) {
 	ts := NewTimeSeries()
 	ts.Read("testdata/simple.csv")
