@@ -22,7 +22,11 @@ func TestTimeSeriesRead(t *testing.T) {
 	}
 
 	testtime := time.Date(2018, 1, 1, 10, 0, 0, 0, time.UTC)
-	record := ts.records[testtime]
+	record, err := ts.LookUp(testtime)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
 	if record != 1.0 {
 		t.Errorf("unexpected record value %r", record)
 	}
@@ -52,7 +56,11 @@ func TestTimeSeriesResample(t *testing.T) {
 	ts.Read("testdata/simple.csv")
 	ts.Resample(24 * time.Hour)
 	testtime := time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC)
-	record := ts.records[testtime]
+	record, err := ts.LookUp(testtime)
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+		return
+	}
 	if record != 1.5 {
 		t.Errorf("unexpected record value %r", record)
 	}
@@ -71,7 +79,10 @@ func TestTimeSeriesInterpolate(t *testing.T) {
 	}
 	for mday, expected_value := range expected {
 		index := time.Date(2018, 2, mday, 0, 0, 0, 0, time.UTC)
-		value := ts.records[index]
+		value, err := ts.LookUp(index)
+		if err != nil {
+			t.Errorf("unexpected error %v", err)
+		}
 		if value != expected_value {
 			t.Errorf("for mday %v expected %v but got %v",
 				mday, expected_value, value)

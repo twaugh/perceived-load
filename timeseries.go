@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"os"
 	"sort"
@@ -12,15 +13,28 @@ import (
 
 const DateFormat = "2006-01-02"
 
+type Record struct {
+	timestamp time.Time
+	datum float64
+}
+
 type TimeSeries struct {
 	granularity time.Duration
-	records map[time.Time]float64
+
+	// records must remain sorted by timestamp
+	records []*Record
+}
+
+func (t *TimeSeries) sort() {
+	sort.Slice(t.records, func (i, j int) bool {
+		return t.records[i].timestamp.Before(t.records[j].timestamp)
+	})
 }
 
 func NewTimeSeries() *TimeSeries {
 	return &TimeSeries{
 		granularity: 24 * time.Hour,
-		records: make(map[time.Time]float64),
+		records: make([]*Record, 0),
 	}
 }
 
@@ -54,24 +68,41 @@ func (t *TimeSeries) Read(db string) error {
 			return err
 		}
 
-		t.records[timestamp] = datum
+		t.records = append(t.records, &Record{
+			timestamp: timestamp,
+			datum: datum,
+		})
 	}
 
+	t.sort()
 	return nil
 }
 
-// New TimeSeries with data since timestamp
-func (t *TimeSeries) Since(ts time.Time) *TimeSeries {
-	records := make(map[time.Time]float64)
-	for timestamp, datum := range t.records {
-		if !timestamp.Before(ts) {
-			records[timestamp] = datum
-		}
-	}
+type InvalidTimestamp time.Time
 
+func (t InvalidTimestamp) Error() string {
+	return fmt.Sprintf("invalid timestamp %v", time.Time(t))
+}
+
+func (t *TimeSeries) LookUp(timestamp time.Time) (float64, error) {
+	n := len(t.records)
+	i := sort.Search(n, func(i int) bool {
+		return !t.records[i].timestamp.Before(timestamp)
+	})
+	if i == n || t.records[i].timestamp != timestamp {
+		return 0, InvalidTimestamp(timestamp)
+	}
+	return t.records[i].datum, nil
+}
+
+// New TimeSeries with data since timestamp
+func (t *TimeSeries) Since(timestamp time.Time) *TimeSeries {
+	i := sort.Search(len(t.records), func(i int) bool {
+		return !t.records[i].timestamp.Before(timestamp)
+	})
 	return &TimeSeries{
 		granularity: t.granularity,
-		records: records,
+		records: t.records[i:],
 	}
 }
 
@@ -80,72 +111,72 @@ func (t *TimeSeries) Resample(d time.Duration) {
 
 	// Make a list of values for each duration
 	data := make(map[time.Time][]float64)
-	for timestamp, datum := range t.records {
+	for _, record := range t.records {
+		timestamp := record.timestamp
 		timestamp = timestamp.Truncate(d)
 		values, ok := data[timestamp]
 		if !ok {
 			data[timestamp] = make([]float64, 0)
 		}
-		data[timestamp] = append(values, datum)
+		data[timestamp] = append(values, record.datum)
 	}
 
 	// Calculate mean for each duration
-	records := make(map[time.Time]float64)
+	records := make([]*Record, len(data))
+	i := 0
 	for timestamp, values := range data {
 		var total float64
 		for _, value := range values {
 			total += value
 		}
-		records[timestamp] = total / float64(len(values))
+		records[i] = &Record{
+			timestamp: timestamp,
+			datum: total / float64(len(values)),
+		}
+		i++
 	}
 
 	// Use resampled values
 	t.granularity = d
 	t.records = records
+	t.sort()
 }
 
 // Fill in missing days using linear interpolation
 func (t *TimeSeries) Interpolate() {
-	// Put the timestamps in chronological order
-	timestamps := make([]time.Time, len(t.records))
-	i := 0
-	for key := range t.records {
-		timestamps[i] = key
-		i++
-	}
-
-	sort.Slice(timestamps, func(i, j int) bool {
-		return timestamps[i].Before(timestamps[j])
-	})
-
 	// Look for gaps (no records for a duration)
 	duration := t.granularity
-	var last time.Time
-	for index, timestamp := range timestamps {
-		timestamp = timestamp.Round(duration)
+	var last *Record
+	missing := make([]*Record, 0)
+	for index, record := range t.records {
+		at := record.timestamp.Round(duration)
 		if index == 0 {
-			last = timestamp
+			last = record
 			continue
 		}
 
-		interval := timestamp.Sub(last)
+		interval := at.Sub(last.timestamp)
 		periods := float64(interval / duration)
 		if periods == 0 {
-			last = timestamp
+			last = record
 			continue
 		}
 
-		start_value := t.records[last]
-		end_value := t.records[timestamp]
+		start_value := last.datum
+		end_value := record.datum
 		step := (end_value - start_value) / float64(periods)
-		for at, period := last, 0.0; period < periods; period++ {
-			if period > 0 {
-				t.records[at] = start_value + step*period
-			}
-
-			at = at.Add(duration)
+		for period := periods - 1; period > 0; period-- {
+			at = at.Add(-duration)
+			missing = append(missing, &Record{
+				timestamp: at,
+				datum: start_value + step*period,
+			})
 		}
 
-		last = timestamp
+		last = record
 	}
+
+	// Sort in the interpolated records
+	t.records = append(t.records, missing...)
+	t.sort()
 }
