@@ -115,7 +115,7 @@ func (t *TimeSeries) Interpolate() {
 	}
 
 	sort.Slice(timestamps, func(i, j int) bool {
-		return timestamps[i].Before(timestamps[i])
+		return timestamps[i].Before(timestamps[j])
 	})
 
 	// Look for gaps (no records for a duration)
