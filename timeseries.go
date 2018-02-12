@@ -129,7 +129,7 @@ func (t *TimeSeries) Interpolate() {
 		}
 
 		interval := timestamp.Sub(last)
-		periods := int(interval / duration)
+		periods := float64(interval / duration)
 		if periods == 0 {
 			last = timestamp
 			continue
@@ -138,9 +138,9 @@ func (t *TimeSeries) Interpolate() {
 		start_value := t.records[last]
 		end_value := t.records[timestamp]
 		step := (end_value - start_value) / float64(periods)
-		for at, period := last, 0; period < periods; period++ {
+		for at, period := last, 0.0; period < periods; period++ {
 			if period > 0 {
-				t.records[at] = start_value + step*float64(period)
+				t.records[at] = start_value + step*period
 			}
 
 			at = at.Add(duration)
