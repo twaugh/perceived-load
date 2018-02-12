@@ -32,6 +32,7 @@ func (t *TimeSeries) Read(db string) error {
 	defer csvFile.Close()
 
 	reader := csv.NewReader(bufio.NewReader(csvFile))
+	reader.FieldsPerRecord = 2
 	for {
 		values, err := reader.Read()
 		if err != nil {
