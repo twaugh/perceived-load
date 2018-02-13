@@ -3,4 +3,5 @@
 Perceived task load average
 ===========================
 
-Nothing to say yet!
+This tool tracks your perceived task load and reports the average
+for the last 1, 5, and 15 days using linear interpolation.
