@@ -14,8 +14,9 @@ import (
 const DateFormat = "2006-01-02"
 
 type Record struct {
+	Datum float64
+
 	timestamp time.Time
-	datum float64
 }
 
 type TimeSeries struct {
@@ -70,7 +71,7 @@ func (t *TimeSeries) Read(db string) error {
 
 		t.records = append(t.records, &Record{
 			timestamp: timestamp,
-			datum: datum,
+			Datum: datum,
 		})
 	}
 
@@ -89,7 +90,7 @@ func (t *TimeSeries) Write(db string) error {
 	for _, record := range t.records {
 		values := []string{
 			record.timestamp.Format(time.RFC3339),
-			fmt.Sprintf("%v", record.datum),
+			fmt.Sprintf("%v", record.Datum),
 		}
 		err = writer.Write(values)
 
@@ -116,13 +117,13 @@ func (t *TimeSeries) LookUp(timestamp time.Time) (float64, error) {
 	if i == n || t.records[i].timestamp != timestamp {
 		return 0, InvalidTimestamp(timestamp)
 	}
-	return t.records[i].datum, nil
+	return t.records[i].Datum, nil
 }
 
 func (t *TimeSeries) Add(timestamp time.Time, datum float64) {
 	t.records = append(t.records, &Record{
 		timestamp: timestamp,
-		datum: datum,
+		Datum: datum,
 	})
 }
 
@@ -149,7 +150,7 @@ func (t *TimeSeries) Resample(d time.Duration) {
 		if !ok {
 			data[timestamp] = make([]float64, 0)
 		}
-		data[timestamp] = append(values, record.datum)
+		data[timestamp] = append(values, record.Datum)
 	}
 
 	// Calculate mean for each duration
@@ -162,7 +163,7 @@ func (t *TimeSeries) Resample(d time.Duration) {
 		}
 		records[i] = &Record{
 			timestamp: timestamp,
-			datum: total / float64(len(values)),
+			Datum: total / float64(len(values)),
 		}
 		i++
 	}
@@ -193,14 +194,14 @@ func (t *TimeSeries) Interpolate() {
 			continue
 		}
 
-		start_value := last.datum
-		end_value := record.datum
+		start_value := last.Datum
+		end_value := record.Datum
 		step := (end_value - start_value) / float64(periods)
 		for period := periods - 1; period > 0; period-- {
 			at = at.Add(-duration)
 			missing = append(missing, &Record{
 				timestamp: at,
-				datum: start_value + step*period,
+				Datum: start_value + step*period,
 			})
 		}
 
