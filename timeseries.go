@@ -78,6 +78,30 @@ func (t *TimeSeries) Read(db string) error {
 	return nil
 }
 
+func (t *TimeSeries) Write(db string) error {
+	csvf, err := os.Create(db)
+	if err != nil {
+		return err
+	}
+	defer csvf.Close()
+
+	writer := csv.NewWriter(bufio.NewWriter(csvf))
+	for _, record := range t.records {
+		values := []string{
+			record.timestamp.Format(time.RFC3339),
+			fmt.Sprintf("%v", record.datum),
+		}
+		err = writer.Write(values)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	defer writer.Flush()
+	return nil
+}
+
 type InvalidTimestamp time.Time
 
 func (t InvalidTimestamp) Error() string {

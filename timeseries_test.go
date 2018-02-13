@@ -1,6 +1,8 @@
 package main
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
@@ -41,6 +43,31 @@ func TestTimeSeriesRead_DateOnly(t *testing.T) {
 	length := len(ts.records)
 	if length != 1 {
 		t.Errorf("unexpected series length %v", length)
+	}
+}
+
+func TestTimeSeriesWrite(t *testing.T) {
+	ts := NewTimeSeries()
+	if err := ts.Read("testdata/simple.csv"); err != nil {
+		t.Fatal(err)
+	}
+	length := len(ts.records)
+	tempfile, err := ioutil.TempDir("", "write")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempfile)
+	tempfile += "/output.csv"
+	err = ts.Write(tempfile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ts = NewTimeSeries()
+	ts.Read(tempfile)
+	got := len(ts.records)
+	if got != length {
+		t.Errorf("read %v records but expected %v", got, length)
 	}
 }
 
