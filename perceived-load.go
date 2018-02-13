@@ -9,6 +9,17 @@ import (
 	"time"
 )
 
+func list(format string, items []float64) string {
+	var result string
+	for index, item := range items {
+		if index != 0 {
+			result += ", "
+		}
+		result += fmt.Sprintf(format, item)
+	}
+	return result
+}
+
 func main() {
 	var opts struct {
 		DB string `long:"db" value-name:"FILE" description:"database file to use"`
@@ -44,23 +55,21 @@ func main() {
 	ts.Resample(24 * time.Hour)
 	ts.Interpolate()
 	var today = time.Now().Truncate(24 * time.Hour)
-	days := []int{1, 5, 15}
+	days := []float64{1, 5, 15}
 	avgs := make([]float64, len(days))
 	var since *TimeSeries
 	for index, days := range days {
 		d := time.Duration((days - 1) * 24) * time.Hour
 		start := today.Add(-d)
 		since = ts.Since(start)
-		for _, record := range since.records {
-			log.Printf("%v: %v\n", record.timestamp.String(), record.datum)
-		}
-		log.Printf("--")
 		var sum float64
 		for _, record := range since.records {
-			sum += record.datum
+			sum += record.Datum
 		}
 		avgs[index] = sum / float64(len(since.records))
 	}
 
-	fmt.Printf("Perceived task load average (%v days): %v\n", days, avgs)
+	fmt.Printf("Perceived task load average (%v days): %v\n",
+		list("%.0f", days), list("%.1f", avgs))
+	fmt.Println("Optimum is 1.0; higher values mean delayed tasks")
 }
