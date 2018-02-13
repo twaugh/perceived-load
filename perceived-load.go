@@ -5,6 +5,7 @@ import (
 	"github.com/jessevdk/go-flags"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -25,6 +26,17 @@ func main() {
 	ts := NewTimeSeries()
 	if err := ts.Read(opts.DB); err != nil {
 		log.Fatal(err)
+	}
+
+	if len(args) > 0 {
+		value, err := strconv.ParseFloat(args[0], 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		ts.Add(time.Now(), value)
+		if err := ts.Write(opts.DB); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	ts.Resample(24 * time.Hour)
