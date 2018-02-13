@@ -37,6 +37,8 @@ func main() {
 		if err := ts.Write(opts.DB); err != nil {
 			log.Fatal(err)
 		}
+	} else if len(ts.records) > 0 {
+		ts.Add(time.Now(), ts.records[len(ts.records) - 1].Datum)
 	}
 
 	ts.Resample(24 * time.Hour)
