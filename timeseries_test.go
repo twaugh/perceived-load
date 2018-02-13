@@ -14,7 +14,9 @@ func TestNewTimeSeries(t *testing.T) {
 
 func TestTimeSeriesRead(t *testing.T) {
 	ts := NewTimeSeries()
-	ts.Read("testdata/simple.csv")
+	if err := ts.Read("testdata/simple.csv"); err != nil {
+		t.Fatal(err)
+	}
 	length := len(ts.records)
 	if length != 4 {
 		t.Errorf("unexpected series length %v", length)
@@ -24,8 +26,7 @@ func TestTimeSeriesRead(t *testing.T) {
 	testtime := time.Date(2018, 1, 1, 10, 0, 0, 0, time.UTC)
 	record, err := ts.LookUp(testtime)
 	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-		return
+		t.Fatalf("unexpected error: %v", err)
 	}
 	if record != 1.0 {
 		t.Errorf("unexpected record value %r", record)
@@ -34,7 +35,9 @@ func TestTimeSeriesRead(t *testing.T) {
 
 func TestTimeSeriesRead_DateOnly(t *testing.T) {
 	ts := NewTimeSeries()
-	ts.Read("testdata/dateonly.csv")
+	if err := ts.Read("testdata/dateonly.csv"); err != nil {
+		t.Fatal(err)
+	}
 	length := len(ts.records)
 	if length != 1 {
 		t.Errorf("unexpected series length %v", length)
@@ -43,7 +46,9 @@ func TestTimeSeriesRead_DateOnly(t *testing.T) {
 
 func TestTimeSeriesSince(t *testing.T) {
 	ts := NewTimeSeries()
-	ts.Read("testdata/simple.csv")
+	if err := ts.Read("testdata/simple.csv"); err != nil {
+		t.Fatal(err)
+	}
 	ts = ts.Since(time.Date(2018, 2, 1, 0, 0, 0, 0, time.UTC))
 	length := len(ts.records)
 	if length != 2 {
@@ -53,13 +58,14 @@ func TestTimeSeriesSince(t *testing.T) {
 
 func TestTimeSeriesResample(t *testing.T) {
 	ts := NewTimeSeries()
-	ts.Read("testdata/simple.csv")
+	if err := ts.Read("testdata/simple.csv"); err != nil {
+		t.Fatal(err)
+	}
 	ts.Resample(24 * time.Hour)
 	testtime := time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC)
 	record, err := ts.LookUp(testtime)
 	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-		return
+		t.Fatalf("unexpected error: %v", err)
 	}
 	if record != 1.5 {
 		t.Errorf("unexpected record value %r", record)
@@ -68,7 +74,9 @@ func TestTimeSeriesResample(t *testing.T) {
 
 func TestTimeSeriesInterpolate(t *testing.T) {
 	ts := NewTimeSeries()
-	ts.Read("testdata/simple.csv")
+	if err := ts.Read("testdata/simple.csv"); err != nil {
+		t.Fatal(err)
+	}
 	ts.Interpolate()
 	expected := map[int]float64{
 		1: 11,
@@ -81,7 +89,7 @@ func TestTimeSeriesInterpolate(t *testing.T) {
 		index := time.Date(2018, 2, mday, 0, 0, 0, 0, time.UTC)
 		value, err := ts.LookUp(index)
 		if err != nil {
-			t.Errorf("unexpected error %v", err)
+			t.Fatalf("unexpected error %v", err)
 		}
 		if value != expected_value {
 			t.Errorf("for mday %v expected %v but got %v",

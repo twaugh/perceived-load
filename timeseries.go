@@ -39,13 +39,13 @@ func NewTimeSeries() *TimeSeries {
 }
 
 func (t *TimeSeries) Read(db string) error {
-	csvFile, err := os.Open(db)
+	csvf, err := os.Open(db)
 	if err != nil {
 		return err
 	}
-	defer csvFile.Close()
+	defer csvf.Close()
 
-	reader := csv.NewReader(bufio.NewReader(csvFile))
+	reader := csv.NewReader(bufio.NewReader(csvf))
 	reader.FieldsPerRecord = 2
 	for {
 		values, err := reader.Read()
