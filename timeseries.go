@@ -119,6 +119,13 @@ func (t *TimeSeries) LookUp(timestamp time.Time) (float64, error) {
 	return t.records[i].datum, nil
 }
 
+func (t *TimeSeries) Add(timestamp time.Time, datum float64) {
+	t.records = append(t.records, &Record{
+		timestamp: timestamp,
+		datum: datum,
+	})
+}
+
 // New TimeSeries with data since timestamp
 func (t *TimeSeries) Since(timestamp time.Time) *TimeSeries {
 	i := sort.Search(len(t.records), func(i int) bool {

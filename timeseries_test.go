@@ -71,6 +71,23 @@ func TestTimeSeriesWrite(t *testing.T) {
 	}
 }
 
+func TestTimeSeriesAdd(t *testing.T) {
+	ts := NewTimeSeries()
+	index := time.Date(2018, 5, 1, 0, 0, 0, 0, time.UTC)
+	if _, err := ts.LookUp(index); err == nil {
+		t.Fatal("new TimeSeries not empty")
+	}
+	expected := 5.1
+	ts.Add(index, expected)
+	value, err := ts.LookUp(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if value != expected {
+		t.Errorf("expected %v but got %v", expected, value)
+	}
+}
+
 func TestTimeSeriesSince(t *testing.T) {
 	ts := NewTimeSeries()
 	if err := ts.Read("testdata/simple.csv"); err != nil {
