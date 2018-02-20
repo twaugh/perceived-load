@@ -109,7 +109,7 @@ func (t InvalidTimestamp) Error() string {
 	return fmt.Sprintf("invalid timestamp %v", time.Time(t))
 }
 
-func (t *TimeSeries) LookUp(timestamp time.Time) (float64, error) {
+func (t *TimeSeries) Lookup(timestamp time.Time) (float64, error) {
 	n := len(t.records)
 	i := sort.Search(n, func(i int) bool {
 		return !t.records[i].timestamp.Before(timestamp)

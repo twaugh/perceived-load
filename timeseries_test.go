@@ -26,7 +26,7 @@ func TestTimeSeriesRead(t *testing.T) {
 	}
 
 	testtime := time.Date(2018, 1, 1, 10, 0, 0, 0, time.UTC)
-	record, err := ts.LookUp(testtime)
+	record, err := ts.Lookup(testtime)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -74,12 +74,12 @@ func TestTimeSeriesWrite(t *testing.T) {
 func TestTimeSeriesAdd(t *testing.T) {
 	ts := NewTimeSeries()
 	index := time.Date(2018, 5, 1, 0, 0, 0, 0, time.UTC)
-	if _, err := ts.LookUp(index); err == nil {
+	if _, err := ts.Lookup(index); err == nil {
 		t.Fatal("new TimeSeries not empty")
 	}
 	expected := 5.1
 	ts.Add(index, expected)
-	value, err := ts.LookUp(index)
+	value, err := ts.Lookup(index)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -107,7 +107,7 @@ func TestTimeSeriesResample(t *testing.T) {
 	}
 	ts.Resample(24 * time.Hour)
 	testtime := time.Date(2018, 1, 1, 0, 0, 0, 0, time.UTC)
-	record, err := ts.LookUp(testtime)
+	record, err := ts.Lookup(testtime)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -131,7 +131,7 @@ func TestTimeSeriesInterpolate(t *testing.T) {
 	}
 	for mday, expected_value := range expected {
 		index := time.Date(2018, 2, mday, 0, 0, 0, 0, time.UTC)
-		value, err := ts.LookUp(index)
+		value, err := ts.Lookup(index)
 		if err != nil {
 			t.Fatalf("unexpected error %v", err)
 		}
