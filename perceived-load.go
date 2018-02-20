@@ -34,6 +34,10 @@ func main() {
 		log.Fatalf("Unexpected parameters: %v\n", args[1:])
 	}
 
+	if opts.DB == "" {
+		opts.DB = os.ExpandEnv("${HOME}/.config/perceived-load.csv")
+	}
+
 	ts := NewTimeSeries()
 	if err := ts.Read(opts.DB); err != nil {
 		log.Fatal(err)
