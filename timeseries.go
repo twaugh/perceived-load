@@ -84,7 +84,6 @@ func (t *TimeSeries) Write(db string) error {
 	if err != nil {
 		return err
 	}
-	defer csvf.Close()
 
 	writer := csv.NewWriter(bufio.NewWriter(csvf))
 	for _, record := range t.records {
@@ -99,7 +98,15 @@ func (t *TimeSeries) Write(db string) error {
 		}
 	}
 
-	defer writer.Flush()
+	writer.Flush()
+	if err := writer.Error(); err != nil {
+		return err
+	}
+
+	if err := csvf.Close(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
