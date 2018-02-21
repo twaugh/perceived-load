@@ -31,7 +31,7 @@ func TestTimeSeriesRead(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if record != 1.0 {
-		t.Errorf("unexpected record value %r", record)
+		t.Errorf("unexpected record value %#v", record)
 	}
 }
 
@@ -112,7 +112,7 @@ func TestTimeSeriesResample(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if record != 1.5 {
-		t.Errorf("unexpected record value %r", record)
+		t.Errorf("unexpected record value %#v", record)
 	}
 }
 

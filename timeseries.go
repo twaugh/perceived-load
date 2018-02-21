@@ -27,7 +27,7 @@ type TimeSeries struct {
 }
 
 func (t *TimeSeries) sort() {
-	sort.Slice(t.records, func (i, j int) bool {
+	sort.Slice(t.records, func(i, j int) bool {
 		return t.records[i].timestamp.Before(t.records[j].timestamp)
 	})
 }
@@ -35,7 +35,7 @@ func (t *TimeSeries) sort() {
 func NewTimeSeries() *TimeSeries {
 	return &TimeSeries{
 		granularity: 24 * time.Hour,
-		records: make([]*Record, 0),
+		records:     make([]*Record, 0),
 	}
 }
 
@@ -71,7 +71,7 @@ func (t *TimeSeries) Read(db string) error {
 
 		t.records = append(t.records, &Record{
 			timestamp: timestamp,
-			Datum: datum,
+			Datum:     datum,
 		})
 	}
 
@@ -123,7 +123,7 @@ func (t *TimeSeries) Lookup(timestamp time.Time) (float64, error) {
 func (t *TimeSeries) Add(timestamp time.Time, datum float64) {
 	t.records = append(t.records, &Record{
 		timestamp: timestamp,
-		Datum: datum,
+		Datum:     datum,
 	})
 }
 
@@ -134,7 +134,7 @@ func (t *TimeSeries) Since(timestamp time.Time) *TimeSeries {
 	})
 	return &TimeSeries{
 		granularity: t.granularity,
-		records: t.records[i:],
+		records:     t.records[i:],
 	}
 }
 
@@ -163,7 +163,7 @@ func (t *TimeSeries) Resample(d time.Duration) {
 		}
 		records[i] = &Record{
 			timestamp: timestamp,
-			Datum: total / float64(len(values)),
+			Datum:     total / float64(len(values)),
 		}
 		i++
 	}
@@ -201,7 +201,7 @@ func (t *TimeSeries) Interpolate() {
 			at = at.Add(-duration)
 			missing = append(missing, &Record{
 				timestamp: at,
-				Datum: start_value + step*period,
+				Datum:     start_value + step*period,
 			})
 		}
 

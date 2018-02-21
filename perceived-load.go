@@ -53,7 +53,7 @@ func main() {
 			log.Fatal(err)
 		}
 	} else if len(ts.records) > 0 {
-		ts.Add(time.Now(), ts.records[len(ts.records) - 1].Datum)
+		ts.Add(time.Now(), ts.records[len(ts.records)-1].Datum)
 	}
 
 	ts.Resample(24 * time.Hour)
@@ -63,7 +63,7 @@ func main() {
 	avgs := make([]float64, len(days))
 	var since *TimeSeries
 	for index, days := range days {
-		d := time.Duration((days - 1) * 24) * time.Hour
+		d := time.Duration((days-1)*24) * time.Hour
 		start := today.Add(-d)
 		since = ts.Since(start)
 		var sum float64
