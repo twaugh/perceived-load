@@ -6,18 +6,28 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
-func list(format string, items []float64) string {
-	var result string
+type Duration int
+
+func (d Duration) String() string {
+	return fmt.Sprintf("%v", int(d))
+}
+
+type LoadAvg float64
+
+func (l LoadAvg) String() string{
+	return fmt.Sprintf("%.1f", float64(l))
+}
+
+func list(items []fmt.Stringer) string {
+	item_strings := make([]string, len(items))
 	for index, item := range items {
-		if index != 0 {
-			result += ", "
-		}
-		result += fmt.Sprintf(format, item)
+		item_strings[index] = item.String()
 	}
-	return result
+	return strings.Join(item_strings, ", ")
 }
 
 func main() {
@@ -59,21 +69,23 @@ func main() {
 	ts.Resample(24 * time.Hour)
 	ts.Interpolate()
 	var today = time.Now().Truncate(24 * time.Hour)
-	days := []float64{1, 5, 15}
-	avgs := make([]float64, len(days))
+	lookbacks := []int{1, 5, 15}
+	days := make([]fmt.Stringer, len(lookbacks))
+	avgs := make([]fmt.Stringer, len(lookbacks))
 	var since *TimeSeries
-	for index, days := range days {
-		d := time.Duration((days-1)*24) * time.Hour
+	for index, lookback := range lookbacks {
+		d := time.Duration((lookback-1)*24) * time.Hour
 		start := today.Add(-d)
 		since = ts.Since(start)
 		var sum float64
 		for _, record := range since.records {
 			sum += record.Datum
 		}
-		avgs[index] = sum / float64(len(since.records))
+		days[index] = Duration(lookback)
+		avgs[index] = LoadAvg(sum / float64(len(since.records)))
 	}
 
 	fmt.Printf("Perceived task load average (%v days): %v\n",
-		list("%.0f", days), list("%.1f", avgs))
+		list(days), list(avgs))
 	fmt.Println("Optimum is 1.0; higher values mean delayed tasks")
 }
