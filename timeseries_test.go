@@ -56,7 +56,11 @@ func TestTimeSeriesWrite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(tempfile)
+	defer func() {
+		if err := os.RemoveAll(tempfile); err != nil {
+			t.Error(err)
+		}
+	}()
 	tempfile += "/output.csv"
 	err = ts.Write(tempfile)
 	if err != nil {
@@ -64,7 +68,9 @@ func TestTimeSeriesWrite(t *testing.T) {
 	}
 
 	ts = NewTimeSeries()
-	ts.Read(tempfile)
+	if err := ts.Read(tempfile); err != nil {
+		t.Fatal(err)
+	}
 	got := len(ts.records)
 	if got != length {
 		t.Errorf("read %v records but expected %v", got, length)

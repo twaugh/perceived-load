@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -44,7 +45,11 @@ func (t *TimeSeries) Read(db string) error {
 	if err != nil {
 		return err
 	}
-	defer csvf.Close()
+	defer func() {
+		if err := csvf.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	reader := csv.NewReader(bufio.NewReader(csvf))
 	reader.FieldsPerRecord = 2
