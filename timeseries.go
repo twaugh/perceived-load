@@ -102,7 +102,6 @@ func (t *TimeSeries) Write(db string) error {
 			fmt.Sprintf("%v", record.Datum),
 		}
 		err = writer.Write(values)
-
 		if err != nil {
 			return err
 		}
