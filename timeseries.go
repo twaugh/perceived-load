@@ -14,12 +14,14 @@ import (
 
 const DateFormat = "2006-01-02"
 
+// Record is a timestamped float64
 type Record struct {
 	Datum float64
 
 	timestamp time.Time
 }
 
+// TimeSeries is a series of Records
 type TimeSeries struct {
 	granularity time.Duration
 
@@ -33,6 +35,7 @@ func (t *TimeSeries) sort() {
 	})
 }
 
+// NewTimeSeries creates a new TimeSeries
 func NewTimeSeries() *TimeSeries {
 	return &TimeSeries{
 		granularity: 24 * time.Hour,
@@ -40,6 +43,7 @@ func NewTimeSeries() *TimeSeries {
 	}
 }
 
+// Read parses a CSV file
 func (t *TimeSeries) Read(db string) error {
 	csvf, err := os.Open(db)
 	if err != nil {
@@ -84,6 +88,7 @@ func (t *TimeSeries) Read(db string) error {
 	return nil
 }
 
+// Write creates a CSV file
 func (t *TimeSeries) Write(db string) error {
 	csvf, err := os.Create(db)
 	if err != nil {
@@ -121,6 +126,7 @@ func (t InvalidTimestamp) Error() string {
 	return fmt.Sprintf("invalid timestamp %v", time.Time(t))
 }
 
+// Lookup finds the datum for a given timestamp
 func (t *TimeSeries) Lookup(timestamp time.Time) (float64, error) {
 	n := len(t.records)
 	i := sort.Search(n, func(i int) bool {
@@ -132,6 +138,7 @@ func (t *TimeSeries) Lookup(timestamp time.Time) (float64, error) {
 	return t.records[i].Datum, nil
 }
 
+// Add creates a new record
 func (t *TimeSeries) Add(timestamp time.Time, datum float64) {
 	t.records = append(t.records, &Record{
 		timestamp: timestamp,
@@ -139,7 +146,7 @@ func (t *TimeSeries) Add(timestamp time.Time, datum float64) {
 	})
 }
 
-// New TimeSeries with data since timestamp
+// Since returns a new TimeSeries with data since timestamp
 func (t *TimeSeries) Since(timestamp time.Time) *TimeSeries {
 	i := sort.Search(len(t.records), func(i int) bool {
 		return !t.records[i].timestamp.Before(timestamp)
@@ -150,7 +157,7 @@ func (t *TimeSeries) Since(timestamp time.Time) *TimeSeries {
 	}
 }
 
-// Resample by date
+// Resample updates the series by averaging close records
 func (t *TimeSeries) Resample(d time.Duration) {
 
 	// Make a list of values for each duration
@@ -186,7 +193,7 @@ func (t *TimeSeries) Resample(d time.Duration) {
 	t.sort()
 }
 
-// Fill in missing days using linear interpolation
+// Interpolate fills in missing records using linear interpolation
 func (t *TimeSeries) Interpolate() {
 	// Look for gaps (no records for a duration)
 	duration := t.granularity
