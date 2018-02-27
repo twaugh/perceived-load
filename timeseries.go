@@ -113,11 +113,7 @@ func (t *TimeSeries) Write(db string) error {
 		return err
 	}
 
-	if err := csvf.Close(); err != nil {
-		return err
-	}
-
-	return nil
+	return csvf.Close()
 }
 
 type InvalidTimestamp time.Time
