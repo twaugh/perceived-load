@@ -5,28 +5,37 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/jessevdk/go-flags"
 )
+
+func average(ts *TimeSeries, today *time.Time, lookback int) float64 {
+	d := time.Duration((lookback-1)*24) * time.Hour
+	start := today.Add(-d)
+	since := ts.Since(start)
+	var sum float64
+	for _, record := range since.records {
+		sum += record.Datum
+	}
+	return sum / float64(len(since.records))
+}
 
 func averages(ts *TimeSeries, days ...int) []float64 {
 	ts.Resample(24 * time.Hour)
 	ts.Interpolate()
 	var today = time.Now().Truncate(24 * time.Hour)
 	avgs := make([]float64, len(days))
-	var since *TimeSeries
-	for index, days := range days {
-		d := time.Duration((days-1)*24) * time.Hour
-		start := today.Add(-d)
-		since = ts.Since(start)
-		var sum float64
-		for _, record := range since.records {
-			sum += record.Datum
-		}
-		avgs[index] = sum / float64(len(since.records))
+	var wg sync.WaitGroup
+	wg.Add(3)
+	for index, lookback := range days {
+		go func(index, lookback int) {
+			avgs[index] = average(ts, &today, lookback)
+			wg.Done()
+		}(index, lookback)
 	}
-
+	wg.Wait()
 	return avgs
 }
 
