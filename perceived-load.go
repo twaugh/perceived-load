@@ -68,21 +68,18 @@ func main() {
 	days := []int{1, 5, 15}
 	avgs := averages(ts, days...)
 
+	const separator = ", "
 	var day_list string
-	for index, lookback := range days {
-		if index > 0 {
-			day_list += ", "
-		}
-		day_list += fmt.Sprint(lookback)
+	for _, lookback := range days {
+		day_list += fmt.Sprintf("%d%s", lookback, separator)
 	}
+	day_list = day_list[:len(day_list)-len(separator)]
 
 	var avg_list string
-	for index, avg := range avgs {
-		if index > 0 {
-			avg_list += ", "
-		}
-		avg_list += fmt.Sprintf("%.1f", avg)
+	for _, avg := range avgs {
+		avg_list += fmt.Sprintf("%.1f%s", avg, separator)
 	}
+	avg_list = avg_list[:len(avg_list)-len(separator)]
 
 	fmt.Printf("Perceived task load average (%s days): %s\n",
 		day_list, avg_list)
