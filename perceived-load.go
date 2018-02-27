@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/jessevdk/go-flags"
 	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/jessevdk/go-flags"
 )
 
 func averages(ts *TimeSeries, days ...int) []float64 {
