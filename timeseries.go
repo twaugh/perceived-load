@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"sort"
 	"strconv"
@@ -44,14 +43,15 @@ func NewTimeSeries() *TimeSeries {
 }
 
 // Read parses a CSV file
-func (t *TimeSeries) Read(db string) error {
+func (t *TimeSeries) Read(db string) (err error) {
 	csvf, err := os.Open(db)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := csvf.Close(); err != nil {
-			log.Fatal(err)
+		closeErr := csvf.Close()
+		if err == nil {
+			err = closeErr
 		}
 	}()
 
