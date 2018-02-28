@@ -57,7 +57,7 @@ func TestTimeSeriesWrite(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		if err := os.RemoveAll(tempfile); err != nil {
+		if err = os.RemoveAll(tempfile); err != nil {
 			t.Error(err)
 		}
 	}()
@@ -135,15 +135,15 @@ func TestTimeSeriesInterpolate(t *testing.T) {
 		4: 14,
 		5: 15,
 	}
-	for mday, expected_value := range expected {
+	for mday, expectedValue := range expected {
 		index := time.Date(2018, 2, mday, 0, 0, 0, 0, time.UTC)
 		value, err := ts.Lookup(index)
 		if err != nil {
 			t.Fatalf("unexpected error %v", err)
 		}
-		if value != expected_value {
+		if value != expectedValue {
 			t.Errorf("for mday %v expected %v but got %v",
-				mday, expected_value, value)
+				mday, expectedValue, value)
 		}
 	}
 }

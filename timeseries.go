@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-const DateFormat = "2006-01-02"
+const dateformat = "2006-01-02"
 
 // Record is a timestamped float64
 type Record struct {
@@ -68,7 +68,7 @@ func (t *TimeSeries) Read(db string) error {
 
 		timestamp, err := time.Parse(time.RFC3339, values[0])
 		if err != nil {
-			timestamp, err = time.Parse(DateFormat, values[0])
+			timestamp, err = time.Parse(dateformat, values[0])
 			if err != nil {
 				return err
 			}
@@ -115,6 +115,7 @@ func (t *TimeSeries) Write(db string) error {
 	return csvf.Close()
 }
 
+// InvalidTimestamp describes an error with the provided timestamp
 type InvalidTimestamp time.Time
 
 func (t InvalidTimestamp) Error() string {
@@ -208,14 +209,14 @@ func (t *TimeSeries) Interpolate() {
 			continue
 		}
 
-		start_value := last.Datum
-		end_value := record.Datum
-		step := (end_value - start_value) / float64(periods)
+		startValue := last.Datum
+		endValue := record.Datum
+		step := (endValue - startValue) / periods
 		for period := periods - 1; period > 0; period-- {
 			at = at.Add(-duration)
 			missing = append(missing, &Record{
 				timestamp: at,
-				Datum:     start_value + step*period,
+				Datum:     startValue + step*period,
 			})
 		}
 

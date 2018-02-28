@@ -10,7 +10,7 @@ import (
 	"github.com/jessevdk/go-flags"
 )
 
-func main() {
+func getTimeSeries() *TimeSeries {
 	var opts struct {
 		DB string `long:"db" value-name:"FILE" description:"database file to use"`
 	}
@@ -46,24 +46,29 @@ func main() {
 		ts.Add(time.Now(), ts.records[len(ts.records)-1].Datum)
 	}
 
+	return ts
+}
+
+func main() {
+	ts := getTimeSeries()
 	days := []int{1, 5, 15}
 	today := time.Now()
 	avgs := averages(ts, &today, days...)
 
 	const separator = ", "
-	var day_list string
+	var dayList string
 	for _, lookback := range days {
-		day_list += fmt.Sprintf("%d%s", lookback, separator)
+		dayList += fmt.Sprintf("%d%s", lookback, separator)
 	}
-	day_list = day_list[:len(day_list)-len(separator)]
+	dayList = dayList[:len(dayList)-len(separator)]
 
-	var avg_list string
+	var avgList string
 	for _, avg := range avgs {
-		avg_list += fmt.Sprintf("%.1f%s", avg, separator)
+		avgList += fmt.Sprintf("%.1f%s", avg, separator)
 	}
-	avg_list = avg_list[:len(avg_list)-len(separator)]
+	avgList = avgList[:len(avgList)-len(separator)]
 
 	fmt.Printf("Perceived task load average (%s days): %s\n",
-		day_list, avg_list)
+		dayList, avgList)
 	fmt.Println("Optimum is 1.0; higher values mean delayed tasks")
 }
