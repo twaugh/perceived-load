@@ -194,7 +194,7 @@ func (t *TimeSeries) Interpolate() {
 	// Look for gaps (no records for a duration)
 	duration := t.granularity
 	var last *Record
-	missing := make([]*Record, 0)
+	var missing []*Record
 	for index, record := range t.records {
 		at := record.timestamp.Round(duration)
 		if index == 0 {
