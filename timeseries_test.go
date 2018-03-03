@@ -46,6 +46,42 @@ func TestTimeSeriesRead_DateOnly(t *testing.T) {
 	}
 }
 
+func TestTimeSeriesRead_Error(t *testing.T) {
+	ts := NewTimeSeries()
+	err := ts.Read("testdata/csverror.csv")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	length := len(ts.records)
+	if length != 1 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
+func TestTimeSeriesRead_DateError(t *testing.T) {
+	ts := NewTimeSeries()
+	err := ts.Read("testdata/dateerror.csv")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	length := len(ts.records)
+	if length != 1 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
+func TestTimeSeriesRead_FloatError(t *testing.T) {
+	ts := NewTimeSeries()
+	err := ts.Read("testdata/floaterror.csv")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	length := len(ts.records)
+	if length != 1 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
 func TestTimeSeriesWrite(t *testing.T) {
 	ts := NewTimeSeries()
 	if err := ts.Read("testdata/simple.csv"); err != nil {
