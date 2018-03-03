@@ -33,6 +33,14 @@ func TestTimeSeriesRead(t *testing.T) {
 	if record != 1.0 {
 		t.Errorf("unexpected record value %#v", record)
 	}
+
+	testtime = time.Date(2018, 1, 1, 11, 0, 0, 0, time.UTC)
+	record, err = ts.Lookup(testtime)
+	err, ok := err.(InvalidTimestamp)
+	if !ok {
+		t.Fatalf("expected InvalidTimestamp")
+	}
+	err.Error()
 }
 
 func TestTimeSeriesRead_DateOnly(t *testing.T) {
