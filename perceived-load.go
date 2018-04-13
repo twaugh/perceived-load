@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"time"
 
@@ -25,7 +26,8 @@ func getTimeSeries() *TimeSeries {
 	}
 
 	if opts.DB == "" {
-		opts.DB = os.ExpandEnv("${HOME}/.config/perceived-load.csv")
+		name := filepath.FromSlash("${HOME}/.config/perceived-load.csv")
+		opts.DB = os.ExpandEnv(name)
 	}
 
 	ts := NewTimeSeries()
