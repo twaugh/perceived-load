@@ -33,12 +33,56 @@ func TestTimeSeriesRead(t *testing.T) {
 	if record != 1.0 {
 		t.Errorf("unexpected record value %#v", record)
 	}
+
+	testtime = time.Date(2018, 1, 1, 11, 0, 0, 0, time.UTC)
+	record, err = ts.Lookup(testtime)
+	err, ok := err.(InvalidTimestamp)
+	if !ok {
+		t.Fatalf("expected InvalidTimestamp")
+	}
+	err.Error()
 }
 
 func TestTimeSeriesRead_DateOnly(t *testing.T) {
 	ts := NewTimeSeries()
 	if err := ts.Read("testdata/dateonly.csv"); err != nil {
 		t.Fatal(err)
+	}
+	length := len(ts.records)
+	if length != 1 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
+func TestTimeSeriesRead_Error(t *testing.T) {
+	ts := NewTimeSeries()
+	err := ts.Read("testdata/csverror.csv")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	length := len(ts.records)
+	if length != 1 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
+func TestTimeSeriesRead_DateError(t *testing.T) {
+	ts := NewTimeSeries()
+	err := ts.Read("testdata/dateerror.csv")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	length := len(ts.records)
+	if length != 1 {
+		t.Errorf("unexpected series length %v", length)
+	}
+}
+
+func TestTimeSeriesRead_FloatError(t *testing.T) {
+	ts := NewTimeSeries()
+	err := ts.Read("testdata/floaterror.csv")
+	if err == nil {
+		t.Fatal("expected error")
 	}
 	length := len(ts.records)
 	if length != 1 {
